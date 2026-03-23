@@ -1,10 +1,10 @@
-Start testing: Mar 23 11:32 PDT
+Start testing: Mar 23 15:07 MDT
 ----------------------------------------------------------
 1/1 Testing: physics_tests
 1/1 Test: physics_tests
 Command: "/Users/masonayers/simulate-u1330581/build/physics_tests"
 Directory: /Users/masonayers/simulate-u1330581/build
-"physics_tests" start time: Mar 23 11:32 PDT
+"physics_tests" start time: Mar 23 15:07 MDT
 Output:
 ----------------------------------------------------------
 [PASS] determinism
@@ -12,11 +12,11 @@ Output:
 [PASS] velocities_stay_bounded
 [PASS] settles_to_rest
 <end of output>
-Test time =   3.95 sec
+Test time =  59.84 sec
 ----------------------------------------------------------
 Test Passed.
-"physics_tests" end time: Mar 23 11:32 PDT
-"physics_tests" time elapsed: 00:00:03
+"physics_tests" end time: Mar 23 15:08 MDT
+"physics_tests" time elapsed: 00:00:59
 ----------------------------------------------------------
 
-End testing: Mar 23 11:32 PDT
+End testing: Mar 23 15:08 MDT

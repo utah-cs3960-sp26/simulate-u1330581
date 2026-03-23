@@ -23,9 +23,8 @@ std::vector<Ball> CreateBalls(const ContainerBounds& bounds) {
     const double diameter = SimulationConfig::ballRadius * 2.0;
     const double rowSpacing = diameter * std::sqrt(3.0) * 0.5;
     const double centerX = (bounds.left + bounds.right) * 0.5;
-    const double quarterWidth = (bounds.right - bounds.left) * 0.22;
-    const Vec2 leftSpawnBase {bounds.left + quarterWidth, bounds.top - SimulationConfig::launchSpawnOffsetY};
-    const Vec2 rightSpawnBase {bounds.right - quarterWidth, bounds.top - SimulationConfig::launchSpawnOffsetY};
+    const Vec2 leftSpawnBase {centerX - SimulationConfig::launchSpawnOffsetX, bounds.top - SimulationConfig::launchSpawnOffsetY};
+    const Vec2 rightSpawnBase {centerX + SimulationConfig::launchSpawnOffsetX, bounds.top - SimulationConfig::launchSpawnOffsetY};
     std::size_t id = 0;
     for (std::size_t row = 0; row < SimulationConfig::rows; ++row) {
         const bool oddRow = (row % 2U) == 1U;

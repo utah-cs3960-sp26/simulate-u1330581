@@ -2,7 +2,7 @@
 
 This project builds a deterministic 2D ball-stacking simulation in C++ with SDL3 and CMake.
 
-The current implementation uses a deterministic packed resting layout inside a square, open-top container and launches balls from two distinct arcing feeds above the container. Each ball follows a precomputed ballistic path and snaps into its assigned packed slot once it reaches the stack region, which keeps the animation smooth and the final state deterministic.
+The current implementation launches balls from two deterministic arcing feeds above a square, open-top container. Balls move under constant gravity, collide against the container walls and floor, interact with the settled stack, and then lock into deterministic packed resting slots once they reach a supported resting position.
 
 ## Build
 
@@ -46,18 +46,19 @@ The main values to adjust are:
 
 - `SimulationConfig::restitution` controls bounce intensity.
 - `SimulationConfig::releaseIntervalFrames` controls how tightly the two launch feeds are spaced.
-- `SimulationConfig::launchFlightTime` controls how quickly balls travel from the feed into the stack.
-- `SimulationConfig::settleDistance` controls how early a ball snaps into its final packed slot.
+- `SimulationConfig::launchFlightTime` and the launch offsets control the arc shape and perceived free-fall.
+- `SimulationConfig::solverIterations` and `SimulationConfig::substeps` control collision quality versus runtime cost.
+- `SimulationConfig::settleDistance` controls how close a ball must get to its packed slot before it locks in.
 
 ## Current Behavior
 
 - The container is centered in the window and has two side walls plus a floor.
 - Balls arrive from two separate arcing streams after the user clicks `START`.
+- Balls interact with the container as a collision object and make direct contact with the walls and floor.
 - The final packed state is deterministic and repeatable across runs.
 - Tests verify determinism, bounded velocity, overlap prevention, and eventual settling.
 
 ## Known Limitations
 
-- The current solver favors determinism and smooth runtime over full free-body collision simulation between simultaneously airborne balls.
-- Resting positions are precomputed packed slots rather than emerging from a fully unconstrained dynamic solve.
-
+- Resting positions are still guided by precomputed packed slots so the final fill remains deterministic across runs.
+- Airborne collisions are intentionally conservative so the simulation stays smooth with roughly 1000 balls on screen.
