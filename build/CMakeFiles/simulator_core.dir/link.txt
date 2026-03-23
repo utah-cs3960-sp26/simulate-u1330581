@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsimulator_core.a CMakeFiles/simulator_core.dir/src/Application.cpp.o CMakeFiles/simulator_core.dir/src/Renderer.cpp.o CMakeFiles/simulator_core.dir/src/SimulationFactory.cpp.o CMakeFiles/simulator_core.dir/src/physics/Ball.cpp.o CMakeFiles/simulator_core.dir/src/physics/PhysicsEngine.cpp.o CMakeFiles/simulator_core.dir/src/physics/Simulation.cpp.o CMakeFiles/simulator_core.dir/src/physics/Wall.cpp.o
+/usr/bin/ranlib libsimulator_core.a

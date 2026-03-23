@@ -6,7 +6,7 @@ You are being prompted in a loop by an automated system. Each time you are invok
 
 ## Project Goal
 
-Implement a deterministic 2D physics simulator in C++ using SDL3. The simulation features ~1000 circular balls falling into the top of a ceiling-less square container (floor + two walls) centered in the window. Balls are affected by gravity and collide with each other and the walls using non-elastic collisions with configurable restitution. All balls eventually come to rest, stacking naturally inside the container.
+Implement a deterministic 2D physics simulator in C++ using SDL3. The simulation features ~1000 circular balls falling into the top of a ceiling-less square container (floor + two walls) centered in the window. Balls are affected by gravity and collide with each other and the walls using non-elastic collisions with configurable restitution. All balls eventually come to rest, stacking naturally inside the container. The balls shouldn't fall in a single horizontal line, but rather two arched projectiles in single file each.
 
 ## Functional Requirements
 
