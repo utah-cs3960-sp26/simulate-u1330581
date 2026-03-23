@@ -6,14 +6,14 @@ You are being prompted in a loop by an automated system. Each time you are invok
 
 ## Project Goal
 
-Implement a deterministic 2D physics simulator in C++ using SDL3. The simulation features ~1000 circular balls falling into the top of a ceiling-less square container (floor + two walls) centered in the window. Balls are affected by gravity and collide with each other and the walls using non-elastic collisions with configurable restitution. All balls eventually come to rest, stacking naturally inside the container. The balls shouldn't fall in a single horizontal line, but rather two arched projectiles in single file each.
+Implement a deterministic 2D physics simulator in C++ using SDL3. The simulation features ~1000 circular balls falling into the top of a ceiling-less square container (floor + two walls) centered in the window. Balls are affected by gravity and collide with each other and the walls using non-elastic collisions with configurable restitution. All balls eventually come to rest, stacking naturally inside the container. The container should act as a physical container, so balls should be bound exactly by the container- balls shouldn't exceed the walls of the container, but some should be in direct contact with the walls and/or floor of the container. The balls shouldn't fall in a single horizontal line, but rather two arched projectiles in single file each. Because the focus of this simulation is physics, balls should be affected by a constant gravity. They should appear to be in free-fall (not falling too fast or too slow).
 
 ## Functional Requirements
 
-- **Container:** A square container with a floor and two side walls (no ceiling), centered in the simulation window. The container must be large enough to hold ~1000 balls without overflow, accounting for the natural gaps between packed circles.
-- **Balls:** Exactly enough balls to fill the container when settled (~1000). Balls must never overlap each other or breach the walls/floor at any point during the simulation — not even for a single frame.
+- **Container:** A square container collision object with a floor and two side walls (no ceiling), centered in the simulation window. The container must be large enough to hold ~1000 balls without overflow, accounting for the natural gaps between packed circles.
+- **Balls:** Exactly enough balls to fill the container when settled (~1000). Balls must never overlap each other or breach the walls/floor at any point during the simulation — not even for a single frame. They should interact with the container, treating the container as a collision object. Balls should also be collision objects to prevent them from overlapping one another as well as the container.
 - **Physics:**
-  - Gravity applied to all balls each frame.
+  - Constant gravity applied to all balls each frame.
   - Non-elastic collisions with restitution (coefficient should be configurable via a constant or config value).
   - Lower restitution = faster settling; but the final settled state (space occupied) should be the same regardless of restitution value.
   - Collision resolution must prevent overlap entirely — no tunneling, no phasing through walls.
