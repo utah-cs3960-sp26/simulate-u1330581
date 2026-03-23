@@ -98,10 +98,8 @@ void Renderer::Render(const PhysicsEngine& engine, bool running, bool hoverButto
         if (!ball.active && !ball.sleeping) {
             continue;
         }
-        const SDL_Color color = ball.sleeping
-            ? SDL_Color {82, 108, 141, 255}
-            : SDL_Color {208, 129, 89, 255};
-        DrawFilledCircle(ball.position.x, ball.position.y, ball.radius, color);
+        const SDL_Color color {208, 129, 89, 255};
+        DrawFilledCircle(ball.renderPosition.x, ball.renderPosition.y, ball.radius, color);
     }
 
     DrawButton(running, hoverButton);

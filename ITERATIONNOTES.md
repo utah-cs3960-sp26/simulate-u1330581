@@ -15,3 +15,10 @@
 - Updated the container rendering to draw filled wall/floor structure with visible outlines, including the previously missing left wall edge.
 - Refreshed `README.md` to match the current physics behavior and configuration knobs.
 - This iteration was triggered by a `PROMPT.md` update focused on physical realism and container appearance.
+
+## 2026-03-23 (Consistency Pass)
+
+- Kept ball appearance consistent across active and resting states by removing the sleep-state color swap.
+- Added visual position smoothing for settled balls so the free-fall to rest transition no longer looks like an abrupt teleport on screen.
+- Reverified the full suite after the rendering-side changes.
+- This iteration was triggered by a `PROMPT.md` update emphasizing consistent ball appearance and non-teleporting motion.

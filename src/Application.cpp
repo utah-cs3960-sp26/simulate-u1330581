@@ -45,6 +45,8 @@ int Application::Run() {
             accumulator -= SimulationConfig::fixedTimeStep;
         }
 
+        engine_.UpdateVisualState();
+
         renderer_.Render(engine_, running_, renderer_.IsInsideButton(mouseX, mouseY));
         SDL_Delay(1);
     }

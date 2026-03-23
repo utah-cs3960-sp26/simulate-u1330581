@@ -18,6 +18,7 @@ void PhysicsEngine::Step() {
         if (!ball.active && !ball.sleeping && frameCount_ >= ball.activationFrame) {
             ball.active = true;
             ball.position = ball.spawnPosition;
+            ball.renderPosition = ball.spawnPosition;
             ball.velocity = ball.launchVelocity;
         }
     }
@@ -52,6 +53,27 @@ bool PhysicsEngine::IsSettled() const {
 
 std::uint64_t PhysicsEngine::GetFrameCount() const {
     return frameCount_;
+}
+
+void PhysicsEngine::UpdateVisualState() {
+    for (Ball& ball : simulation_.GetBalls()) {
+        if (!ball.active && !ball.sleeping) {
+            continue;
+        }
+
+        if (!ball.sleeping) {
+            ball.renderPosition = ball.position;
+            continue;
+        }
+
+        const Vec2 delta = ball.position - ball.renderPosition;
+        if (LengthSquared(delta) <= 0.01) {
+            ball.renderPosition = ball.position;
+            continue;
+        }
+
+        ball.renderPosition += delta * 0.3;
+    }
 }
 
 std::size_t PhysicsEngine::CellKeyHasher::operator()(const CellKey& key) const noexcept {

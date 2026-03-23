@@ -27,6 +27,9 @@ public:
     /** Returns how many fixed frames have elapsed. */
     std::uint64_t GetFrameCount() const;
 
+    /** Smooths visual positions so settle transitions do not pop on screen. */
+    void UpdateVisualState();
+
 private:
     using CellKey = std::pair<int, int>;
 

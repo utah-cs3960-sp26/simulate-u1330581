@@ -16,6 +16,7 @@ public:
 
     std::size_t id;
     Vec2 position;
+    Vec2 renderPosition;
     Vec2 velocity;
     Vec2 spawnPosition;
     Vec2 targetPosition;

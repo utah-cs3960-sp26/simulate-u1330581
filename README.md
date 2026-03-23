@@ -55,6 +55,8 @@ The main values to adjust are:
 - The container is centered in the window and has two side walls plus a floor.
 - Balls arrive from two separate arcing streams after the user clicks `START`.
 - Balls interact with the container as a collision object and make direct contact with the walls and floor.
+- Balls keep a consistent appearance throughout the simulation; they no longer change color when they come to rest.
+- Rest transitions are visually smoothed so settling into the packed stack does not appear as a hard onscreen pop.
 - The final packed state is deterministic and repeatable across runs.
 - Tests verify determinism, bounded velocity, overlap prevention, and eventual settling.
 
