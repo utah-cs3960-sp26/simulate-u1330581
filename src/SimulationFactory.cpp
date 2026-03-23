@@ -7,6 +7,10 @@ std::size_t ColumnsForRow(std::size_t row) {
     return (row % 2U) == 1U ? SimulationConfig::oddRowColumns : SimulationConfig::evenRowColumns;
 }
 
+double PackedWidth() {
+    return static_cast<double>(SimulationConfig::evenRowColumns) * SimulationConfig::ballRadius * 2.0;
+}
+
 std::size_t RowStart(std::size_t row) {
     std::size_t start = 0;
     for (std::size_t current = 0; current < row; ++current) {
@@ -110,9 +114,10 @@ Simulation CreateSimulation() {
     const double halfSize = SimulationConfig::containerInnerSize * 0.5;
     const double centerX = SimulationConfig::windowWidth * 0.5;
     const double centerY = SimulationConfig::windowHeight * 0.57;
+    const double left = centerX - halfSize;
     const ContainerBounds bounds {
-        centerX - halfSize,
-        centerX + halfSize,
+        left,
+        left + PackedWidth(),
         centerY - halfSize,
         centerY + halfSize
     };

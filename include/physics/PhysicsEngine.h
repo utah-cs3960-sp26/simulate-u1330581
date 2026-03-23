@@ -55,8 +55,14 @@ private:
     /** Returns true when the ball can safely lock into its target slot. */
     bool CanSettle(const Ball& ball) const;
 
+    /** Returns true when a long-lived ball is close enough to force into place. */
+    bool CanForceSettle(const Ball& ball) const;
+
     /** Returns true when the target slot has stable support beneath it. */
     bool HasSupport(const Ball& ball) const;
+
+    /** Returns true when no awake ball is intruding on this ball's target slot. */
+    bool IsTargetSlotClear(const Ball& ball) const;
 
     /** Returns the ball assigned to a packed slot, or nullptr when missing. */
     const Ball* FindBallAtSlot(std::size_t row, std::size_t column) const;

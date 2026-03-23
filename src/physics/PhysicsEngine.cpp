@@ -7,6 +7,7 @@ namespace {
 constexpr double kBallPenetrationEpsilon = 0.06;
 constexpr double kWallPenetrationEpsilon = 0.02;
 constexpr double kGridCellSize = SimulationConfig::ballRadius * 2.6;
+constexpr double kForcedSettleDistance = SimulationConfig::ballRadius * 1.5;
 }
 
 PhysicsEngine::PhysicsEngine(Simulation simulation)
@@ -31,7 +32,15 @@ void PhysicsEngine::Step() {
             ResolveBallCollisions();
             ResolveWallCollisions();
         }
+        RebuildSpatialGrid();
+        ResolveBallCollisions();
         UpdateSettledState();
+        RebuildSpatialGrid();
+        ResolveBallCollisions();
+        ResolveWallCollisions();
+        RebuildSpatialGrid();
+        ResolveBallCollisions();
+        ResolveWallCollisions();
     }
     ++frameCount_;
 }
@@ -89,7 +98,6 @@ void PhysicsEngine::Integrate(double dt) {
         }
 
         ball.velocity.y += SimulationConfig::gravity * dt;
-        ball.velocity *= SimulationConfig::linearDamping;
         ball.position += ball.velocity * dt;
         ClampVelocity(ball);
     }
@@ -160,7 +168,7 @@ void PhysicsEngine::UpdateSettledState() {
         }
 
         const bool timedOutToRest = frameCount_ > (ball.activationFrame + 220U);
-        if (CanSettle(ball) || timedOutToRest) {
+        if (CanSettle(ball) || (timedOutToRest && CanForceSettle(ball))) {
             ball.position = ball.targetPosition;
             ball.velocity = Vec2 {};
             ball.sleeping = true;
@@ -173,27 +181,25 @@ bool PhysicsEngine::CanSettle(const Ball& ball) const {
     const Vec2 toTarget = ball.targetPosition - ball.position;
     const auto& bounds = simulation_.GetBounds();
     if (ball.slotRow == 0) {
-        const bool touchingFloor = (bounds.bottom - (ball.position.y + ball.radius)) <= SimulationConfig::supportTolerance;
-        const bool closeEnoughForFloorSnap = std::abs(ball.position.x - ball.targetPosition.x) <= (SimulationConfig::ballRadius * 6.0);
+        const bool touchingFloor = (bounds.bottom - (ball.position.y + ball.radius))
+            <= std::max(SimulationConfig::supportTolerance, 1.0);
+        const bool closeEnoughForFloorSnap = std::abs(ball.position.x - ball.targetPosition.x) <= (SimulationConfig::ballRadius * 1.5);
         if (touchingFloor && closeEnoughForFloorSnap) {
             return true;
         }
+    }
+
+    const double sleepSpeedSquared = SimulationConfig::sleepSpeed * SimulationConfig::sleepSpeed;
+    if (LengthSquared(ball.velocity) > sleepSpeedSquared) {
+        return false;
     }
 
     if (Length(toTarget) > SimulationConfig::settleDistance) {
         return false;
     }
 
-    for (const Ball& other : simulation_.GetBalls()) {
-        if (other.id == ball.id || (!other.active && !other.sleeping)) {
-            continue;
-        }
-
-        const Vec2 delta = other.position - ball.targetPosition;
-        const double minDistance = ball.radius + other.radius;
-        if (LengthSquared(delta) < minDistance * minDistance - 1e-4 && !other.sleeping) {
-            return false;
-        }
+    if (!IsTargetSlotClear(ball)) {
+        return false;
     }
 
     if (ball.slotRow == 0) {
@@ -221,6 +227,39 @@ bool PhysicsEngine::CanSettle(const Ball& ball) const {
     }
 
     return HasSupport(ball);
+}
+
+bool PhysicsEngine::CanForceSettle(const Ball& ball) const {
+    if (Length(ball.targetPosition - ball.position) > kForcedSettleDistance) {
+        return false;
+    }
+
+    if (!IsTargetSlotClear(ball)) {
+        return false;
+    }
+
+    if (ball.slotRow == 0) {
+        const auto& bounds = simulation_.GetBounds();
+        return (bounds.bottom - (ball.position.y + ball.radius)) <= (SimulationConfig::supportTolerance * 2.0);
+    }
+
+    return HasSupport(ball);
+}
+
+bool PhysicsEngine::IsTargetSlotClear(const Ball& ball) const {
+    for (const Ball& other : simulation_.GetBalls()) {
+        if (other.id == ball.id || (!other.active && !other.sleeping)) {
+            continue;
+        }
+
+        const Vec2 delta = other.position - ball.targetPosition;
+        const double minDistance = ball.radius + other.radius;
+        if (LengthSquared(delta) < minDistance * minDistance - 1e-4 && !other.sleeping) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool PhysicsEngine::HasSupport(const Ball& ball) const {
@@ -278,7 +317,10 @@ void PhysicsEngine::ResolveBallPair(Ball& a, Ball& b) {
     }
 
     if (!a.sleeping && !b.sleeping && a.launchFromLeft != b.launchFromLeft) {
-        return;
+        const double laneHandoffY = std::min(a.targetPosition.y, b.targetPosition.y) - (SimulationConfig::ballRadius * 4.0);
+        if (a.position.y < laneHandoffY && b.position.y < laneHandoffY) {
+            return;
+        }
     }
 
     Vec2 delta = b.position - a.position;

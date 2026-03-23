@@ -10,7 +10,7 @@ struct SimulationConfig {
     static constexpr double restitution = 0.08;
     static constexpr double maxSpeed = 2600.0;
     static constexpr double fixedTimeStep = 1.0 / 120.0;
-    static constexpr int solverIterations = 6;
+    static constexpr int solverIterations = 10;
     static constexpr int substeps = 3;
     static constexpr std::size_t rows = 33;
     static constexpr std::size_t evenRowColumns = 31;
