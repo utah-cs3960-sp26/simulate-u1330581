@@ -20,3 +20,6 @@ considering the next phase of the simulator.
 Another minor issue is the balls aren't really conforming to the container, especially on the right side of the container.
 The update I will be making is emphasizing the continuity of a ball object. A ball object shouldn't really change at all. It should be a
 collision object. It should be treated as though it is being acted on by gravity until bound by the container and/or other balls.
+
+### 4:
+Current version, the physics still kind of suck when the balls fall into their final location. I don't know if codex just doesn't understand the looping quite as well, but it didn't iterate much. In fact, each time I have given it the iterative prompt, it loops less and less. This time around, it only changed a couple dozen lines which isn't much of a change. That being said, it did fix the major bug from the previous iterations. However, the balls break free-fall at the end and slow down and move to their resting point, rather than accelerating form gravity until it collides with balls or the floor or wall and then resting. There is still a gap between the balls and the wall on the right side so that bug was completely ignored as well.
