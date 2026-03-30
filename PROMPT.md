@@ -32,6 +32,9 @@ Implement a deterministic 2D physics simulator in C++ using SDL3. The simulation
   - **OOP:** Apply all four pillars (encapsulation, abstraction, inheritance, polymorphism) where appropriate. For example, walls and balls might share a common `CollisionObject` base class.
   - **Efficiency:** Use spatial partitioning (e.g., a grid or spatial hash) to avoid O(n²) collision checks across all 1000 balls every frame.
 
+## Image Generation
+To add to the deterministic behavior of the physics simulator, the balls should end up creating the Barcelona_Logo.png image in their final location.
+
 ## Testing
 - Aim for ~100% code coverage on physics logic (collision detection, resolution, gravity application).
 - Use a test-first approach where practical.
