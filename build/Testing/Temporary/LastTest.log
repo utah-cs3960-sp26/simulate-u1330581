@@ -1,22 +1,24 @@
-Start testing: Mar 23 16:07 MDT
+Start testing: Mar 30 15:25 MDT
 ----------------------------------------------------------
 1/1 Testing: physics_tests
 1/1 Test: physics_tests
 Command: "/Users/masonayers/simulate-u1330581/build/physics_tests"
 Directory: /Users/masonayers/simulate-u1330581/build
-"physics_tests" start time: Mar 23 16:07 MDT
+"physics_tests" start time: Mar 30 15:25 MDT
 Output:
 ----------------------------------------------------------
 [PASS] determinism
 [PASS] no_overlap_ever
+[PASS] launch_preserves_horizontal_velocity_in_free_flight
+[PASS] packed_bounds_match_resting_layout
 [PASS] velocities_stay_bounded
-[PASS] settles_to_rest
+[FAIL] Simulation did not settle
 <end of output>
-Test time =  60.88 sec
+Test time = 258.65 sec
 ----------------------------------------------------------
-Test Passed.
-"physics_tests" end time: Mar 23 16:08 MDT
-"physics_tests" time elapsed: 00:01:00
+Test Failed.
+"physics_tests" end time: Mar 30 15:29 MDT
+"physics_tests" time elapsed: 00:04:18
 ----------------------------------------------------------
 
-End testing: Mar 23 16:08 MDT
+End testing: Mar 30 15:29 MDT

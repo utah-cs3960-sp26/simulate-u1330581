@@ -42,68 +42,19 @@ Renderer::~Renderer() {
 }
 
 void Renderer::Render(const PhysicsEngine& engine, bool running, bool hoverButton) const {
-    SetColor(renderer_, SDL_Color {241, 237, 228, 255});
+    SetColor(renderer_, SDL_Color {6, 6, 6, 255});
     SDL_RenderClear(renderer_);
-
-    const auto& bounds = engine.GetSimulation().GetBounds();
-    const float wallThickness = static_cast<float>(SimulationConfig::wallThickness);
-    const SDL_FRect containerRect {
-        static_cast<float>(bounds.left),
-        static_cast<float>(bounds.top),
-        static_cast<float>(bounds.right - bounds.left),
-        static_cast<float>(bounds.bottom - bounds.top)
-    };
-    const SDL_FRect leftWallRect {
-        containerRect.x - wallThickness,
-        containerRect.y,
-        wallThickness,
-        containerRect.h + wallThickness
-    };
-    const SDL_FRect rightWallRect {
-        containerRect.x + containerRect.w,
-        containerRect.y,
-        wallThickness,
-        containerRect.h + wallThickness
-    };
-    const SDL_FRect floorRect {
-        containerRect.x - wallThickness,
-        containerRect.y + containerRect.h,
-        containerRect.w + wallThickness * 2.0f,
-        wallThickness
-    };
-    const SDL_FRect fillRect {
-        containerRect.x,
-        containerRect.y,
-        containerRect.w,
-        containerRect.h
-    };
-
-    SetColor(renderer_, SDL_Color {197, 174, 143, 255});
-    SDL_RenderFillRect(renderer_, &floorRect);
-    SDL_RenderFillRect(renderer_, &leftWallRect);
-    SDL_RenderFillRect(renderer_, &rightWallRect);
-
-    SetColor(renderer_, SDL_Color {227, 215, 196, 255});
-    SDL_RenderFillRect(renderer_, &fillRect);
-
-    SetColor(renderer_, SDL_Color {38, 50, 56, 255});
-    SDL_RenderLine(renderer_, bounds.left, bounds.bottom, bounds.right, bounds.bottom);
-    SDL_RenderLine(renderer_, bounds.left, bounds.top, bounds.left, bounds.bottom);
-    SDL_RenderLine(renderer_, bounds.right, bounds.top, bounds.right, bounds.bottom);
-    SDL_RenderLine(renderer_, bounds.left - wallThickness, bounds.top, bounds.left - wallThickness, bounds.bottom + wallThickness);
-    SDL_RenderLine(renderer_, bounds.right + wallThickness, bounds.top, bounds.right + wallThickness, bounds.bottom + wallThickness);
-    SDL_RenderLine(renderer_, bounds.left - wallThickness, bounds.bottom + wallThickness, bounds.right + wallThickness, bounds.bottom + wallThickness);
 
     for (const Ball& ball : engine.GetSimulation().GetBalls()) {
         if (!ball.active && !ball.sleeping) {
             continue;
         }
-        const SDL_Color color {208, 129, 89, 255};
+        const SDL_Color color {ball.color.r, ball.color.g, ball.color.b, ball.color.a};
         DrawFilledCircle(ball.renderPosition.x, ball.renderPosition.y, ball.radius, color);
     }
 
     DrawButton(running, hoverButton);
-    DrawLabel(44.0, 120.0, running ? "SIM RUNNING" : "CLICK TO START", SDL_Color {38, 50, 56, 255});
+    DrawLabel(44.0, 120.0, running ? "FORMING CREST" : "CLICK TO START", SDL_Color {245, 201, 23, 255});
     SDL_RenderPresent(renderer_);
 }
 
@@ -127,12 +78,12 @@ void Renderer::DrawFilledCircle(double centerX, double centerY, double radius, S
 
 void Renderer::DrawButton(bool running, bool hoverButton) const {
     const SDL_Color background = running
-        ? SDL_Color {108, 125, 133, 255}
-        : (hoverButton ? SDL_Color {226, 153, 111, 255} : SDL_Color {208, 129, 89, 255});
+        ? SDL_Color {68, 27, 94, 255}
+        : (hoverButton ? SDL_Color {196, 30, 58, 255} : SDL_Color {128, 10, 43, 255});
     SetColor(renderer_, background);
     SDL_RenderFillRect(renderer_, &buttonRect_);
 
-    SetColor(renderer_, SDL_Color {38, 50, 56, 255});
+    SetColor(renderer_, SDL_Color {245, 201, 23, 255});
     SDL_RenderRect(renderer_, &buttonRect_);
     DrawLabel(buttonRect_.x + 24.0, buttonRect_.y + 18.0, running ? "RUNNING" : "START", SDL_Color {255, 250, 245, 255});
 }

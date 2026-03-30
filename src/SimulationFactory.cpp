@@ -1,8 +1,51 @@
 #include "SimulationFactory.h"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <string_view>
+#include <vector>
 
 namespace {
+using GlyphRows = std::array<std::string_view, 7>;
+
+constexpr BallColor kBlack {0, 0, 0, 255};
+constexpr BallColor kGold {245, 201, 23, 255};
+constexpr BallColor kRed {220, 0, 50, 255};
+constexpr BallColor kBlue {0, 77, 152, 255};
+constexpr BallColor kClaret {165, 0, 68, 255};
+constexpr BallColor kWhite {245, 245, 245, 255};
+
+constexpr GlyphRows kGlyphF {
+    "11111",
+    "10000",
+    "11110",
+    "10000",
+    "10000",
+    "10000",
+    "10000"
+};
+
+constexpr GlyphRows kGlyphC {
+    "01110",
+    "10001",
+    "10000",
+    "10000",
+    "10000",
+    "10001",
+    "01110"
+};
+
+constexpr GlyphRows kGlyphB {
+    "11110",
+    "10001",
+    "11110",
+    "10001",
+    "10001",
+    "10001",
+    "11110"
+};
+
 std::size_t ColumnsForRow(std::size_t row) {
     return (row % 2U) == 1U ? SimulationConfig::oddRowColumns : SimulationConfig::evenRowColumns;
 }
@@ -17,6 +60,100 @@ std::size_t RowStart(std::size_t row) {
         start += ColumnsForRow(current);
     }
     return start;
+}
+
+bool IsGlyphPixel(const GlyphRows& glyph, int x, int y) {
+    if (x < 0 || x >= 5 || y < 0 || y >= 7) {
+        return false;
+    }
+    return glyph[static_cast<std::size_t>(y)][static_cast<std::size_t>(x)] == '1';
+}
+
+bool IsFcbLetter(double xNorm, double yNorm) {
+    if (yNorm < 0.40 || yNorm > 0.58 || xNorm < 0.28 || xNorm > 0.72) {
+        return false;
+    }
+
+    constexpr std::array<GlyphRows, 3> glyphs {kGlyphF, kGlyphC, kGlyphB};
+    const double localX = (xNorm - 0.28) / 0.44;
+    const double localY = (yNorm - 0.40) / 0.18;
+    const int glyphIndex = std::clamp(static_cast<int>(localX * 3.0), 0, 2);
+    const double glyphLocalX = (localX * 3.0) - static_cast<double>(glyphIndex);
+    const int pixelX = static_cast<int>(glyphLocalX * 6.0);
+    const int pixelY = static_cast<int>(localY * 7.0);
+    return IsGlyphPixel(glyphs[static_cast<std::size_t>(glyphIndex)], pixelX, pixelY);
+}
+
+bool IsInsideShield(double xNorm, double yNorm, double inset) {
+    const double x = std::abs(xNorm - 0.5);
+    if (yNorm < 0.08 + inset) {
+        return false;
+    }
+
+    if (yNorm < 0.48) {
+        const double vertical = (yNorm - 0.22) / 0.26;
+        if (std::abs(vertical) > 1.0) {
+            return false;
+        }
+        const double halfWidth = 0.44 - inset - 0.09 * vertical * vertical;
+        return x <= halfWidth;
+    }
+
+    if (yNorm < 0.63) {
+        return x <= (0.43 - inset);
+    }
+
+    if (yNorm < 0.90) {
+        const double taper = (yNorm - 0.63) / 0.27;
+        const double halfWidth = 0.43 - inset - taper * 0.05;
+        return x <= halfWidth;
+    }
+
+    if (yNorm > 0.98 - inset) {
+        return false;
+    }
+
+    const double topRise = (yNorm - 0.90) / 0.08;
+    const double lobeShape = 0.32 + 0.12 * topRise;
+    return x <= (lobeShape - inset);
+}
+
+BallColor CrestColorFor(double xNorm, double yNorm) {
+    if (!IsInsideShield(xNorm, yNorm, 0.0)) {
+        return kBlack;
+    }
+    if (!IsInsideShield(xNorm, yNorm, 0.05)) {
+        return kGold;
+    }
+
+    if (yNorm >= 0.62) {
+        if (xNorm < 0.5) {
+            const bool verticalCross = std::abs(xNorm - 0.29) <= 0.065;
+            const bool horizontalCross = std::abs(yNorm - 0.77) <= 0.055;
+            return (verticalCross || horizontalCross) ? kRed : kWhite;
+        }
+
+        const double stripeX = (xNorm - 0.5) / 0.5;
+        const int stripeIndex = static_cast<int>(std::floor(stripeX * 6.0));
+        return (stripeIndex % 2) == 0 ? kGold : kRed;
+    }
+
+    if (yNorm >= 0.48) {
+        return IsFcbLetter(xNorm, yNorm) ? kBlack : kGold;
+    }
+
+    const double dx = xNorm - 0.5;
+    const double dy = yNorm - 0.19;
+    const double distanceSquared = dx * dx + dy * dy;
+    if (distanceSquared <= 0.013) {
+        return kGold;
+    }
+    if (distanceSquared <= 0.0175) {
+        return kBlack;
+    }
+
+    const int stripeIndex = static_cast<int>(std::floor(xNorm * 5.0));
+    return (stripeIndex % 2) == 0 ? kBlue : kClaret;
 }
 
 std::vector<Ball> CreateBalls(const ContainerBounds& bounds) {
@@ -43,6 +180,10 @@ std::vector<Ball> CreateBalls(const ContainerBounds& bounds) {
             ball.slotRow = row;
             ball.slotColumn = column;
             ball.launchFromLeft = x <= centerX;
+
+            const double xNorm = (x - bounds.left) / (bounds.right - bounds.left);
+            const double yNorm = static_cast<double>(row) / static_cast<double>(SimulationConfig::rows - 1U);
+            ball.color = CrestColorFor(xNorm, yNorm);
         }
     }
 
