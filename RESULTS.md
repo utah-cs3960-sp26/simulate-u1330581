@@ -26,3 +26,6 @@ Current version, the physics still kind of suck when the balls fall into their f
 
 ### 5: 
 After adding instructions to create the image, it iterated several times, changing the color of the balls. After it finished, the program was unbelievably slow, so I actually made a change to the prompt and reran. My change was focused on improving efficiency, and a key aspect of this was to change the number of balls used to make the image. My goal with this was to get the simulation to be smooth again and to get the general image created. The first was certainly accomplished- it ended up using about 400 balls (I didn't specify how many to reduce to) and the simulation looks significantly better. The image, however is pretty off. There are a couple random white balls scattered around the image that are unneccessary. Next step will be focused on correcting the final image. Physics could also use a slight update. I'm considering starting a new simulator from scratch, as I wonder if it will be actually be able to improve at all.
+
+### 6:
+As I wondered, the changes made to emphasize the importance of the image correction didn't really do anything. I don't know how to really provide better instruction in prompt.md to help codex understand what to test for to see if the image is displaying accurately.
