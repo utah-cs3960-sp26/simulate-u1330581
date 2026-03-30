@@ -1,6 +1,6 @@
 # Deterministic Physics Simulator
 
-This project builds a deterministic 2D ball-stacking simulation in C++ with SDL3 and CMake.
+This project builds a deterministic 2D ball-stacking image creator simulation in C++ with SDL3 and CMake.
 
 The current implementation launches balls from two deterministic arcing feeds above a square, open-top container. Balls move under constant gravity, collide against the container walls and floor, interact with the settled stack, and then lock into deterministic packed resting slots once they reach a supported resting position.
 
@@ -59,6 +59,7 @@ The main values to adjust are:
 - Rest transitions are visually smoothed so settling into the packed stack does not appear as a hard onscreen pop.
 - The final packed state is deterministic and repeatable across runs.
 - Tests verify determinism, bounded velocity, overlap prevention, and eventual settling.
+- Image created by colored balls
 
 ## Known Limitations
 
