@@ -8,6 +8,12 @@
 
 namespace {
 using GlyphRows = std::array<std::string_view, 7>;
+constexpr std::array<double, 21> kOuterHalfWidthsTopDown {
+    0.08, 0.14, 0.24, 0.34, 0.40, 0.43, 0.43,
+    0.43, 0.43, 0.43, 0.43, 0.43, 0.43, 0.42,
+    0.41, 0.39, 0.36, 0.32, 0.27, 0.20, 0.12
+};
+constexpr double kBorderThickness = 0.055;
 
 constexpr BallColor kBlack {0, 0, 0, 255};
 constexpr BallColor kGold {245, 201, 23, 255};
@@ -84,52 +90,52 @@ bool IsFcbLetter(double xNorm, double yNorm) {
     return IsGlyphPixel(glyphs[static_cast<std::size_t>(glyphIndex)], pixelX, pixelY);
 }
 
-bool IsInsideShield(double xNorm, double yNorm, double inset) {
-    const double x = std::abs(xNorm - 0.5);
-    if (yNorm < 0.08 + inset) {
-        return false;
-    }
-
-    if (yNorm < 0.48) {
-        const double vertical = (yNorm - 0.22) / 0.26;
-        if (std::abs(vertical) > 1.0) {
-            return false;
-        }
-        const double halfWidth = 0.44 - inset - 0.09 * vertical * vertical;
-        return x <= halfWidth;
-    }
-
-    if (yNorm < 0.63) {
-        return x <= (0.43 - inset);
-    }
-
-    if (yNorm < 0.90) {
-        const double taper = (yNorm - 0.63) / 0.27;
-        const double halfWidth = 0.43 - inset - taper * 0.05;
-        return x <= halfWidth;
-    }
-
-    if (yNorm > 0.98 - inset) {
-        return false;
-    }
-
-    const double topRise = (yNorm - 0.90) / 0.08;
-    const double lobeShape = 0.32 + 0.12 * topRise;
-    return x <= (lobeShape - inset);
+double ShieldHalfWidthForRow(std::size_t row, std::size_t totalRows) {
+    const double topRow = static_cast<double>((totalRows - 1U) - row);
+    const double sample = topRow * static_cast<double>(kOuterHalfWidthsTopDown.size() - 1U)
+        / static_cast<double>(totalRows - 1U);
+    const std::size_t lower = static_cast<std::size_t>(std::floor(sample));
+    const std::size_t upper = std::min(lower + 1U, kOuterHalfWidthsTopDown.size() - 1U);
+    const double blend = sample - static_cast<double>(lower);
+    return kOuterHalfWidthsTopDown[lower] * (1.0 - blend) + kOuterHalfWidthsTopDown[upper] * blend;
 }
 
-BallColor CrestColorFor(double xNorm, double yNorm) {
-    if (!IsInsideShield(xNorm, yNorm, 0.0)) {
-        return kBlack;
+bool IsInsideShield(std::size_t row, std::size_t totalRows, double xNorm, double inset) {
+    const double centeredX = std::abs(xNorm - 0.5);
+    double halfWidth = ShieldHalfWidthForRow(row, totalRows) - inset;
+    if (halfWidth <= 0.0) {
+        return false;
     }
-    if (!IsInsideShield(xNorm, yNorm, 0.05)) {
+
+    const std::size_t topRow = (totalRows - 1U) - row;
+    if (topRow <= 2U) {
+        const double notch = 0.08 * static_cast<double>(3U - topRow);
+        if (std::abs(xNorm - 0.5) < notch) {
+            return false;
+        }
+    }
+
+    return centeredX <= halfWidth;
+}
+
+BallColor CrestColorFor(std::size_t row, std::size_t totalRows, double xNorm) {
+    const double yNorm = static_cast<double>(row) / static_cast<double>(totalRows - 1U);
+    const std::size_t topRow = (totalRows - 1U) - row;
+    if (!IsInsideShield(row, totalRows, xNorm, 0.0)) {
+        return kWhite;
+    }
+    if (!IsInsideShield(row, totalRows, xNorm, kBorderThickness)) {
         return kGold;
     }
 
-    if (yNorm >= 0.62) {
+    if (topRow <= 1U) {
+        return kGold;
+    }
+
+    if (topRow <= 6U) {
         if (xNorm < 0.5) {
             const bool verticalCross = std::abs(xNorm - 0.29) <= 0.065;
-            const bool horizontalCross = std::abs(yNorm - 0.77) <= 0.055;
+            const bool horizontalCross = topRow >= 3U && topRow <= 4U;
             return (verticalCross || horizontalCross) ? kRed : kWhite;
         }
 
@@ -138,7 +144,7 @@ BallColor CrestColorFor(double xNorm, double yNorm) {
         return (stripeIndex % 2) == 0 ? kGold : kRed;
     }
 
-    if (yNorm >= 0.48) {
+    if (topRow <= 9U) {
         return IsFcbLetter(xNorm, yNorm) ? kBlack : kGold;
     }
 
@@ -182,8 +188,7 @@ std::vector<Ball> CreateBalls(const ContainerBounds& bounds) {
             ball.launchFromLeft = x <= centerX;
 
             const double xNorm = (x - bounds.left) / (bounds.right - bounds.left);
-            const double yNorm = static_cast<double>(row) / static_cast<double>(SimulationConfig::rows - 1U);
-            ball.color = CrestColorFor(xNorm, yNorm);
+            ball.color = CrestColorFor(row, SimulationConfig::rows, xNorm);
         }
     }
 

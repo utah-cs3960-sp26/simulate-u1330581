@@ -42,7 +42,7 @@ Renderer::~Renderer() {
 }
 
 void Renderer::Render(const PhysicsEngine& engine, bool running, bool hoverButton) const {
-    SetColor(renderer_, SDL_Color {6, 6, 6, 255});
+    SetColor(renderer_, SDL_Color {255, 255, 255, 255});
     SDL_RenderClear(renderer_);
 
     for (const Ball& ball : engine.GetSimulation().GetBalls()) {
@@ -50,7 +50,7 @@ void Renderer::Render(const PhysicsEngine& engine, bool running, bool hoverButto
             continue;
         }
         const SDL_Color color {ball.color.r, ball.color.g, ball.color.b, ball.color.a};
-        DrawFilledCircle(ball.renderPosition.x, ball.renderPosition.y, ball.radius, color);
+        DrawFilledCircle(ball.renderPosition.x, ball.renderPosition.y, ball.radius * 1.10, color);
     }
 
     DrawButton(running, hoverButton);
